@@ -236,14 +236,14 @@ p {
   width: max-content;
 }
 
-.pause-unpause-stack {
+.pause-play-stack {
   position: relative;
   height: 55px;
   width: 55px;
   flex: 0 0 55px;
 }
 
-.pause-unpause-stack .timer-button {
+.pause-play-stack .timer-button {
   position: absolute;
   inset: 0;
   display: grid;
@@ -253,15 +253,15 @@ p {
   background: transparent;
 }
 
-.pause-unpause-stack #pause-button {
+.pause-play-stack #pause-button {
   display: none;
 }
 
-.pause-unpause-stack.paused #pause-button {
+.pause-play-stack.paused #pause-button {
   display: grid;
 }
 
-.pause-unpause-stack.paused #unpause-button {
+.pause-play-stack.paused #play-button {
   display: none;
 }
 
