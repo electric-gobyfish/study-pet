@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     // Progress bars update
     const bars = [
-        { fillId: "xpFill", numId: "xpNum", current: 0, max: 100 },
         { fillId: "healthFill", numId: "healthNum", current: 0, max: 100 },
-        { fillId: "hungerFill", numId: "hungerNum", current: 0, max: 100 }
+        { fillId: "hungerFill", numId: "hungerNum", current: 0, max: 100 },
+        { fillId: "xpFill", numId: "xpNum", current: 0, max: 100 },
     ];
 
     function updateBar(bar, amount) {
@@ -63,5 +62,46 @@ document.addEventListener("DOMContentLoaded", () => {
             const activeText = document.getElementById(textId);
             if (activeText) activeText.classList.remove("hover");
         });
+    });
+
+    // Pause, play and reset
+    const pausePlayButtons = document.getElementsByClassName("pause-play-stack")[0];
+    const resetButton = document.getElementById("reset-button");
+    const timeNum = document.getElementById("tomato-text")
+
+    async function getPromiseTimer() {
+        let result = await chrome.storage.local.get(["pomodoroTimer"]);
+        return result.pomodoroTimer;
+    }
+
+    async function updateTime() {
+        const timerValues = await getPromiseTimer();
+
+        timeLeft = timerValues.timeLeft;
+        paused = timerValues.paused;
+        startTime = timerValues.startTime;
+
+        let minsLeft = Math.floor(timeLeft/60000).toString().padStart(2, "0");
+        let secsLeft = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, "0");
+
+        timeNum.textContent = `${minsLeft}:${secsLeft}`;
+    }
+
+    updateTime()
+
+    pausePlayButtons.addEventListener("click", () => {
+        if (paused) {
+            pausePlayButtons.classList.add("paused");
+            chrome.runtime.sendMessage({greeting: "start"});
+
+        } else {
+            pausePlayButtons.classList.remove("paused");
+            chrome.runtime.sendMessage({greeting: "pause"});
+        }
+    });
+
+    resetButton.addEventListener("click", () => {
+        pausePlayButtons.classList.add("paused");
+        chrome.runtime.sendMessage({greeting: "reset"});
     });
 });

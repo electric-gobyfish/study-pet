@@ -1,19 +1,19 @@
 /* Font */
 @font-face {
   font-family: Pixeloid Mono;
-  src: url(fonts/PixeloidMono-aYe1R.ttf);
+  src: url(../fonts/PixeloidMono-aYe1R.ttf);
   font-weight: normal;
 }
 
 @font-face {
   font-family: Pixeloid Sans;
-  src: url(fonts/PixeloidSans-E40en.ttf);
+  src: url(../fonts/PixeloidSans-E40en.ttf);
   font-weight: normal;
 }
 
 @font-face {
   font-family: Pixeloid Bold;
-  src: url(fonts/PixeloidSansBold-OG894.ttf);
+  src: url(../fonts/PixeloidSansBold-OG894.ttf);
   font-weight: bold;
 }
 
@@ -23,13 +23,13 @@ body {
   padding: 20px;
   width: 550px;
   height: 434.852px;
-  font-family: Pixeloid Sans, sans-serif;
+  font-family: "Pixeloid Sans", sans-serif;
 }
 
 /* Typography */
 h1 {
   margin-bottom: 20px;
-  font-family: Pixeloid Bold, sans-serif;
+  font-family: "Pixeloid Bold", sans-serif;
 }
 
 p {

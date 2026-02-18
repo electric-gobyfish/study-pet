@@ -11,5 +11,11 @@
     "32": "images/icons/pet-32.png",
     "48": "images/icons/pet-48.png",
     "128": "images/icons/pet-128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
   }
 }
