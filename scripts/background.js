@@ -1,5 +1,5 @@
 class Timer {
-    constructor(timeLimitSecs = 1500) {
+    constructor(timeLimitSecs = 100) {
         this.timeLimit = timeLimitSecs * 1000;
         this.timeLeft = this.timeLimit;
         this.startTime = null;

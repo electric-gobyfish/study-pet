@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pause, play and reset
     const pausePlayButtons = document.getElementsByClassName("pause-play-stack")[0];
     const resetButton = document.getElementById("reset-button");
-    const timeNum = document.querySelector(".tomato-text");
+    const timeNum = document.querySelector("#tomato-text");
 
     async function getPromiseTimer() {
         let result = await chrome.storage.local.get(["pomodoroTimer"]);

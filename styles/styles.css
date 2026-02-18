@@ -218,7 +218,7 @@ p {
   display: block;
 }
 
-.tomato-text {
+#tomato-text {
   position: absolute;
   inset: 50% auto auto 50%;
   transform: translate(-47.5%, -17.5%);
