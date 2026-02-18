@@ -8,6 +8,13 @@ class Timer {
         this.timerId = null;
     }
 
+    updateBadgeTime() {
+        const totalSecs = Math.ceil(this.timeLeft / 1000);
+        let minsLeft = Math.floor(totalSecs / 60).toString().padStart(2, "0");
+        let secsLeft = (totalSecs % 60).toString().padStart(2, "0");
+        chrome.action.setBadgeText({text: `${minsLeft}:${secsLeft}`})
+    }
+
     saveState() {
         chrome.storage.local.set({
             pomodoroTimer: {
@@ -17,11 +24,17 @@ class Timer {
                 lastSavedAt: Date.now()
             }
         });
+        if (this.startTime !== null) {
+            this.updateBadgeTime()
+        } else {
+            chrome.action.setBadgeText({text: ""})
+        }
     }
 
     start() {
         if (!this.paused) return;
         this.paused = false;
+        this.updateBadgeTime();
 
         this.startTime = Date.now();
         const remainingAtStart = this.timeLeft;
@@ -59,6 +72,7 @@ class Timer {
         this.elapsed = 0;
         this.startTime = null;
         this.saveState();
+        chrome.action.setBadgeText({text: ""})
     }
 }
 
