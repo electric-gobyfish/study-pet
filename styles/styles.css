@@ -243,6 +243,10 @@ p {
   flex: 0 0 55px;
 }
 
+.pause-play-stack.next {
+  display: none;
+}
+
 .pause-play-stack .timer-button {
   position: absolute;
   inset: 0;
@@ -265,6 +269,14 @@ p {
   display: none;
 }
 
+#next-button {
+  display: none;
+}
+
+#next-button.next {
+  display: grid;
+}
+
 .timer-button {
   all: unset;
   cursor: pointer;
@@ -284,6 +296,10 @@ p {
   background: transparent;
 }
 
+#reset-button.next {
+  display: none;
+}
+
 .timer-button img {
   display: block;
   height: 55px;
@@ -292,7 +308,68 @@ p {
   display: block;
 }
 
-.completed-pomodoros {
+#completed-pomodoros {
   text-align: center;
   font-size: 18px;
+}
+
+#timer-mode-label {
+  font-size: 20px;
+  margin: 4px 0 10px;
+  padding-top: 7px;
+}
+
+/* Edit times settings */
+.edit-times {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.time-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.time-input-row label {
+  width: 70px;
+  text-align: right;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+}
+
+.time-input-row input[type="number"] {
+  width: 44px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+  text-align: center;
+  padding: 2px 4px;
+  -moz-appearance: textfield;
+}
+
+.time-input-row input[type="number"]::-webkit-inner-spin-button,
+.time-input-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+#save-times-button {
+  margin-top: 6px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+  padding: 4px 16px;
+  cursor: pointer;
+}
+
+#save-times-button:hover {
+  background: #333;
 }

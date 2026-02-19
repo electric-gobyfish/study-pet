@@ -88,7 +88,7 @@
 <!-- Pomodoro Tab -->
 <div class="tab-content" id="pomodoro-tab">
 
-  <div class="tomato-timer centred-element">
+  <div class="tomato-timer centred-element" >
     <img src="images/timer/tomato.png" alt="Tomato" draggable="false" />
     <p id="tomato-text">25:00</p>
   </div>
@@ -106,11 +106,32 @@
     <button class="timer-button" id="reset-button">
       <img src="images/timer/buttons/reset.png" alt="Reset" draggable="false" />
     </button>
+
+    <button class="timer-button" id="next-button">
+        <img src="images/timer/buttons/next.png" alt="Next Pomodoro" draggable="false" />
+      </button>
   </div>
 
-  <p class="completed-pomodoros">0/4</p>
+  <p id="timer-mode-label" class="centred-text">Focus</p>
 
-<!--  <div class="edit-times"></div>-->
+  <div class="edit-times" id="edit-times">
+    <div class="time-input-row">
+      <label for="work-mins-input">Focus</label>
+      <input type="number" id="work-mins-input" min="20" max="99" value="25" />
+      <span>min</span>
+    </div>
+    <div class="time-input-row">
+      <label for="break-mins-input">Break</label>
+      <input type="number" id="break-mins-input" min="1" max="99" value="5" />
+      <span>min</span>
+    </div>
+    <div class="time-input-row">
+      <label for="long-break-mins-input">Long Break</label>
+      <input type="number" id="long-break-mins-input" min="1" max="99" value="15" />
+      <span>min</span>
+    </div>
+    <button id="save-times-button">Save</button>
+  </div>
 </div>
 
 <!-- Food Tab -->

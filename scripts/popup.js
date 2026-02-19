@@ -68,6 +68,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const pausePlayButtons = document.getElementsByClassName("pause-play-stack")[0];
     const resetButton = document.getElementById("reset-button");
     const timeNum = document.querySelector("#tomato-text");
+    const nextButton = document.getElementById("next-button");
+    const completedPomodoros = document.getElementById("completed-pomodoros");
+    const timerModeLabel = document.getElementById("timer-mode-label");
+    const tomatoTimerClick = document.getElementsByClassName("tomato-timer")[0];
+    const editableTimes = document.getElementsByClassName("edit-times")[0]
+
+    const modeLabels = { work: "Focus", break: "Break", longBreak: "Long Break" };
+
+    function nextPomodoro() {
+        for (const timerButton of document.getElementsByClassName("timer-button")) {
+            timerButton.classList.toggle("next")
+        }
+        pausePlayButtons.classList.toggle("next");
+    }
 
     async function getPromiseTimer() {
         let result = await chrome.storage.local.get(["pomodoroTimer"]);
@@ -84,14 +98,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         timeNum.textContent = `${minsLeft}:${secsLeft}`;
 
+        if (timerModeLabel) {
+            timerModeLabel.textContent = modeLabels[timerValues.mode] || "Focus";
+        }
+
         if (timerValues.paused) {
             pausePlayButtons.classList.remove("paused");
         } else {
             pausePlayButtons.classList.add("paused");
         }
+
+        // Sync "next" button visibility: show when timer has finished (00:00)
+        if (totalSecs <= 0) {
+            for (const timerButton of document.getElementsByClassName("timer-button")) {
+                timerButton.classList.add("next");
+            }
+            pausePlayButtons.classList.add("next");
+        } else {
+            for (const timerButton of document.getElementsByClassName("timer-button")) {
+                timerButton.classList.remove("next");
+            }
+            pausePlayButtons.classList.remove("next");
+        }
     }
 
-    updateTime();
+    updateTime()
 
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area === "local" && changes.pomodoroTimer) {
@@ -107,6 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (timer.paused) {
             chrome.runtime.sendMessage({greeting: "start"});
+            if (timeNum.textContent === "00:00") {
+                nextPomodoro();
+            }
         } else {
             chrome.runtime.sendMessage({greeting: "pause"});
         }
@@ -115,5 +149,34 @@ document.addEventListener("DOMContentLoaded", () => {
     resetButton.addEventListener("click", () => {
         pausePlayButtons.classList.remove("paused");
         chrome.runtime.sendMessage({greeting: "reset"});
+    });
+
+    nextButton.addEventListener("click", () => {
+        nextPomodoro()
+        chrome.runtime.sendMessage({greeting: "next"})
+    })
+
+    // Custom times settings
+    const workInput = document.getElementById("work-mins-input");
+    const breakInput = document.getElementById("break-mins-input");
+    const longBreakInput = document.getElementById("long-break-mins-input");
+    const saveTimesButton = document.getElementById("save-times-button");
+
+    chrome.storage.local.get(["workMins", "breakMins", "longBreakMins"], (result) => {
+        if (result.workMins) workInput.value = result.workMins;
+        if (result.breakMins) breakInput.value = result.breakMins;
+        if (result.longBreakMins) longBreakInput.value = result.longBreakMins;
+    });
+
+    saveTimesButton.addEventListener("click", () => {
+        const workMins = Math.max(1, parseInt(workInput.value) || 25);
+        const breakMins = Math.max(1, parseInt(breakInput.value) || 5);
+        const longBreakMins = Math.max(1, parseInt(longBreakInput.value) || 15);
+        chrome.storage.local.set({ workMins, breakMins, longBreakMins });
+        chrome.runtime.sendMessage({greeting: "reset", workMins, breakMins, longBreakMins});
+    });
+
+    tomatoTimerClick.addEventListener("click", () => {
+        editableTimes.classList.toggle("show");
     });
 });

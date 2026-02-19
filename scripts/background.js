@@ -1,11 +1,30 @@
 class Timer {
-    constructor(timeLimitSecs = 100) {
-        this.timeLimit = timeLimitSecs * 1000;
+    constructor() {
+        this.workMins = 25;
+        this.breakMins = 5;
+        this.longBreakMins = 15;
+        this.mode = "work"; // "work" | "break" | "longBreak"
+        this.timeLimit = this.workMins * 60 * 1000;
         this.timeLeft = this.timeLimit;
         this.startTime = null;
         this.elapsed = 0;
         this.paused = true;
         this.timerId = null;
+        this.pomodoroIteration = 0;
+    }
+
+    getTimeLimitMs() {
+        if (this.mode === "break") return this.breakMins * 60 * 1000;
+        if (this.mode === "longBreak") return this.longBreakMins * 60 * 1000;
+        return this.workMins * 60 * 1000;
+    }
+
+    advanceMode() {
+        if (this.mode === "work") {
+            this.mode = (this.pomodoroIteration > 0 && this.pomodoroIteration % 4 === 0) ? "longBreak" : "break";
+        } else {
+            this.mode = "work";
+        }
     }
 
     updateBadgeTime() {
@@ -21,7 +40,9 @@ class Timer {
                 timeLeft: this.timeLeft,
                 paused: this.paused,
                 startTime: this.startTime,
-                lastSavedAt: Date.now()
+                lastSavedAt: Date.now(),
+                pomodoroIteration: this.pomodoroIteration,
+                mode: this.mode
             }
         });
         if (this.startTime !== null) {
@@ -46,7 +67,9 @@ class Timer {
 
             if (this.timeLeft <= 0) {
                 this.timeLeft = 0;
+                if (this.mode === "work") this.pomodoroIteration++;
                 this.pause();
+                chrome.action.setBadgeText({text: ""})
                 return;
             }
 
@@ -68,6 +91,7 @@ class Timer {
 
     reset() {
         this.pause();
+        this.timeLimit = this.getTimeLimitMs();
         this.timeLeft = this.timeLimit;
         this.elapsed = 0;
         this.startTime = null;
@@ -78,20 +102,37 @@ class Timer {
 
 const timer = new Timer();
 
-chrome.storage.local.get(["pomodoroTimer"], (result) => {
+chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMins"], (result) => {
+    if (result.workMins) timer.workMins = result.workMins;
+    if (result.breakMins) timer.breakMins = result.breakMins;
+    if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
+
     const saved = result.pomodoroTimer;
     if (saved) {
         timer.timeLeft = saved.timeLeft;
         timer.paused = saved.paused;
+        if (saved.mode) timer.mode = saved.mode;
+        timer.pomodoroIteration = saved.pomodoroIteration || 0;
         // If timer was running when service worker was killed, account for elapsed sleep time
         if (!saved.paused && saved.lastSavedAt) {
             timer.timeLeft = Math.max(0, saved.timeLeft - (Date.now() - saved.lastSavedAt));
         }
         if (!timer.paused) {
+            timer.paused = true;
             timer.start();
         }
     } else {
+        timer.timeLimit = timer.getTimeLimitMs();
+        timer.timeLeft = timer.timeLimit;
         timer.saveState();
+    }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local") {
+        if (changes.workMins) timer.workMins = changes.workMins.newValue;
+        if (changes.breakMins) timer.breakMins = changes.breakMins.newValue;
+        if (changes.longBreakMins) timer.longBreakMins = changes.longBreakMins.newValue;
     }
 });
 
@@ -101,6 +142,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else if (message.greeting === "pause") {
         timer.pause();
     } else if (message.greeting === "reset") {
+        if (message.workMins) timer.workMins = message.workMins;
+        if (message.breakMins) timer.breakMins = message.breakMins;
+        if (message.longBreakMins) timer.longBreakMins = message.longBreakMins;
         timer.reset();
+    } else if (message.greeting === "next") {
+        timer.advanceMode();
+        timer.reset();
+        timer.start();
     }
-})
+});
