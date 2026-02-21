@@ -24,6 +24,7 @@ body {
   width: 550px;
   height: 434.852px;
   font-family: "Pixeloid Sans", sans-serif;
+  margin-top: 0;
 }
 
 /* Typography */
@@ -35,6 +36,12 @@ h1 {
 p {
   margin: 10px 0;
   font-size: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin: none;
 }
 
 /* Image */
@@ -209,6 +216,7 @@ p {
   position: relative;
   width: 200px;
   height: auto;
+  margin-top: -15px;
 }
 
 .tomato-timer img {
@@ -296,6 +304,33 @@ p {
   background: transparent;
 }
 
+.top-bar {
+  display: inline-flex;
+  flex-direction: row;
+  padding: 0;
+  gap: 15px;
+  height: 37px;
+  justify-items: flex-end;
+  margin-left: auto;
+}
+
+.top-bar button {
+  display: flex;
+  object-fit: contain;
+  all: unset;
+  width: 37px;
+}
+
+.top-bar button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#pencil-button.hide {
+  display: none;
+}
+
 #reset-button.next {
   display: none;
 }
@@ -321,11 +356,23 @@ p {
 
 /* Edit times settings */
 .edit-times {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  padding: 18px;
+  padding-right: 24px;
+  padding-top: 24px;
+  translate: -50% -50%;
+  background: aliceblue;
+  border: 3px solid black;
+}
+
+.edit-times.show {
+  display: flex;
 }
 
 .time-input-row {
@@ -342,6 +389,13 @@ p {
   font-size: 15px;
 }
 
+.time-input-row span {
+  width: 30px;
+  text-align: left;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+}
+
 .time-input-row input[type="number"] {
   width: 44px;
   background: #111;
@@ -352,6 +406,8 @@ p {
   text-align: center;
   padding: 2px 4px;
   -moz-appearance: textfield;
+  outline: none;
+  border: none;
 }
 
 .time-input-row input[type="number"]::-webkit-inner-spin-button,
@@ -368,6 +424,7 @@ p {
   font-size: 15px;
   padding: 4px 16px;
   cursor: pointer;
+  border: none;
 }
 
 #save-times-button:hover {
