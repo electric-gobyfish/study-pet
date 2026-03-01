@@ -21,9 +21,21 @@ class Timer {
 
     advanceMode() {
         if (this.mode === "work") {
-            this.mode = (this.pomodoroIteration > 0 && this.pomodoroIteration % 4 === 0) ? "longBreak" : "break";
+            this.mode = "break";
+        } else if (this.mode === "break") {
+            this.mode = (this.pomodoroIteration > 0 && this.pomodoroIteration % 4 === 0) ? "longBreak" : "work";
         } else {
             this.mode = "work";
+        }
+    }
+
+    findNextMode() {
+        if (this.mode === "work") {
+            return "a break ☕️";
+        } else if (this.mode === "break") {
+            return (this.pomodoroIteration > 0 && this.pomodoroIteration % 4 === 0) ? "a well deserved long break ☕️" : "work 📝";
+        } else {
+            return "work 📝";
         }
     }
 
@@ -70,6 +82,8 @@ class Timer {
                 if (this.mode === "work") this.pomodoroIteration++;
                 this.pause();
                 chrome.action.setBadgeText({text: ""})
+                this.sendNotification(this.findNextMode())
+                this.playSound()
                 return;
             }
 
@@ -77,7 +91,29 @@ class Timer {
             this.timerId = setTimeout(tick, 1000);
         }
 
-        this.timerId = setTimeout(tick, 1000);
+        tick();
+    }
+
+    sendNotification(nextIteration) {
+        chrome.notifications.create(Date.now().toString(), {
+            type: "basic",
+            iconUrl: chrome.runtime.getURL("images/icons/pet-48.png"),
+            title: "Timer finished!",
+            message: `Time’s up! Next up is ${nextIteration}.`,
+            priority: 2
+        })
+    }
+
+    async playSound() {
+      if (!(await chrome.offscreen.hasDocument())) {
+        await chrome.offscreen.createDocument({
+          url: "offscreen.html",
+          reasons: ["AUDIO_PLAYBACK"],
+          justification: "Play notification sound"
+        });
+      }
+
+      chrome.runtime.sendMessage("finishedTimerSound");
     }
 
     pause() {
@@ -117,7 +153,7 @@ chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMi
         if (!saved.paused && saved.lastSavedAt) {
             timer.timeLeft = Math.max(0, saved.timeLeft - (Date.now() - saved.lastSavedAt));
         }
-        if (!timer.paused) {
+        if (!timer.paused && timer.timerId === null) {
             timer.paused = true;
             timer.start();
         }
@@ -147,8 +183,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.longBreakMins) timer.longBreakMins = message.longBreakMins;
         timer.reset();
     } else if (message.greeting === "next") {
-        timer.advanceMode();
-        timer.reset();
-        timer.start();
+        chrome.storage.local.get(["workMins", "breakMins", "longBreakMins"], (result) => {
+            if (result.workMins) timer.workMins = result.workMins;
+            if (result.breakMins) timer.breakMins = result.breakMins;
+            if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
+            timer.advanceMode();
+            timer.reset();
+            timer.start();
+        });
     }
 });

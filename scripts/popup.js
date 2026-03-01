@@ -88,8 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return result.pomodoroTimer;
     }
 
-    async function updateTime() {
-        const timerValues = await getPromiseTimer();
+    async function updateTime(timerValues) {
+        if (!timerValues) {
+            timerValues = await getPromiseTimer();
+        }
         if (!timerValues) return;
 
         const totalSecs = Math.ceil(timerValues.timeLeft / 1000);
@@ -100,6 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (timerModeLabel) {
             timerModeLabel.textContent = modeLabels[timerValues.mode] || "Focus";
+        }
+
+        if (completedPomodoros) {
+            completedPomodoros.textContent = `${(timerValues.pomodoroIteration || 0) % 4}`;
         }
 
         if (timerValues.paused) {
@@ -126,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area === "local" && changes.pomodoroTimer) {
-            updateTime()
+            updateTime(changes.pomodoroTimer.newValue);
         }
     })
 
@@ -137,9 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!timer) return;
 
         if (timer.paused) {
-            chrome.runtime.sendMessage({greeting: "start"});
             if (timeNum.textContent === "00:00") {
                 nextPomodoro();
+                chrome.runtime.sendMessage({greeting: "next"});
+            } else {
+                chrome.runtime.sendMessage({greeting: "start"});
             }
         } else {
             chrome.runtime.sendMessage({greeting: "pause"});
@@ -179,4 +187,18 @@ document.addEventListener("DOMContentLoaded", () => {
     tomatoTimerClick.addEventListener("click", () => {
         editableTimes.classList.toggle("show");
     });
+
+    const settingsButton = document.getElementById("settings-button");
+    const settings = document.getElementById("settings");
+    const closeSettings = document.getElementById("close-settings");
+
+    settingsButton.addEventListener("click", () => {
+        settings.classList.add("show");
+        closeSettings.classList.add("show");
+    });
+
+    closeSettings.addEventListener("click", () => {
+        settings.classList.remove("show");
+        closeSettings.classList.remove("show");
+    })
 });
