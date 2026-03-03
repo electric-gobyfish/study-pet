@@ -15,7 +15,8 @@
   "permissions": [
     "storage",
     "notifications",
-    "offscreen"
+    "offscreen",
+    "windows"
   ],
   "web_accessible_resources": [
     {

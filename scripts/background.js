@@ -11,6 +11,7 @@ class Timer {
         this.paused = true;
         this.timerId = null;
         this.pomodoroIteration = 0;
+        this.hasStarted = false;
     }
 
     getTimeLimitMs() {
@@ -54,19 +55,21 @@ class Timer {
                 startTime: this.startTime,
                 lastSavedAt: Date.now(),
                 pomodoroIteration: this.pomodoroIteration,
-                mode: this.mode
+                mode: this.mode,
+                hasStarted: this.hasStarted
             }
         });
-        if (this.startTime !== null) {
-            this.updateBadgeTime()
+        if (this.hasStarted) {
+            this.updateBadgeTime();
         } else {
-            chrome.action.setBadgeText({text: ""})
+            chrome.action.setBadgeText({text: ""});
         }
     }
 
     start() {
         if (!this.paused) return;
         this.paused = false;
+        this.hasStarted = true;
         this.updateBadgeTime();
 
         this.startTime = Date.now();
@@ -127,6 +130,7 @@ class Timer {
 
     reset() {
         this.pause();
+        this.hasStarted = false;
         this.timeLimit = this.getTimeLimitMs();
         this.timeLeft = this.timeLimit;
         this.elapsed = 0;
@@ -138,30 +142,64 @@ class Timer {
 
 const timer = new Timer();
 
-chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMins"], (result) => {
-    if (result.workMins) timer.workMins = result.workMins;
-    if (result.breakMins) timer.breakMins = result.breakMins;
-    if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
+// Wrap initialization in a promise so message handlers never act on a blank timer
+// (race condition: SW wakes up, messages arrive before storage.get callback fires).
+const initPromise = new Promise(resolve => {
+    chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMins"], (result) => {
+        if (result.workMins) timer.workMins = result.workMins;
+        if (result.breakMins) timer.breakMins = result.breakMins;
+        if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
 
-    const saved = result.pomodoroTimer;
-    if (saved) {
-        timer.timeLeft = saved.timeLeft;
-        timer.paused = saved.paused;
-        if (saved.mode) timer.mode = saved.mode;
-        timer.pomodoroIteration = saved.pomodoroIteration || 0;
-        // If timer was running when service worker was killed, account for elapsed sleep time
-        if (!saved.paused && saved.lastSavedAt) {
-            timer.timeLeft = Math.max(0, saved.timeLeft - (Date.now() - saved.lastSavedAt));
+        const saved = result.pomodoroTimer;
+        if (saved) {
+            timer.timeLeft = saved.timeLeft;
+            timer.paused = saved.paused;
+            if (saved.mode) timer.mode = saved.mode;
+            timer.pomodoroIteration = saved.pomodoroIteration || 0;
+            timer.hasStarted = saved.hasStarted || false;
+            // If timer was running when service worker was killed, account for elapsed sleep time
+            if (!saved.paused && saved.lastSavedAt) {
+                timer.timeLeft = Math.max(0, saved.timeLeft - (Date.now() - saved.lastSavedAt));
+            }
+            if (!timer.paused && timer.timerId === null) {
+                timer.paused = true;
+                timer.start();
+            } else if (timer.paused && timer.hasStarted) {
+                timer.updateBadgeTime();
+            }
+        } else {
+            timer.timeLimit = timer.getTimeLimitMs();
+            timer.timeLeft = timer.timeLimit;
+            timer.saveState();
         }
-        if (!timer.paused && timer.timerId === null) {
-            timer.paused = true;
-            timer.start();
-        }
-    } else {
-        timer.timeLimit = timer.getTimeLimitMs();
-        timer.timeLeft = timer.timeLimit;
-        timer.saveState();
+        resolve();
+    });
+});
+
+// Track open normal window count in memory so we can pause synchronously on close.
+// Re-initialize each time the SW starts (in case it was killed and restarted).
+let normalWindowCount = 0;
+chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
+    normalWindowCount = windows.length;
+});
+
+chrome.windows.onRemoved.addListener(() => {
+    normalWindowCount = Math.max(0, normalWindowCount - 1);
+    if (normalWindowCount === 0 && !timer.paused) {
+        timer.pause();
+        chrome.storage.local.set({ timerPausedByWindowClose: true });
     }
+});
+
+chrome.windows.onCreated.addListener((win) => {
+    if (win.type !== 'normal') return;
+    normalWindowCount++;
+    chrome.storage.local.get(['timerPausedByWindowClose'], (result) => {
+        if (result.timerPausedByWindowClose) {
+            chrome.storage.local.remove('timerPausedByWindowClose');
+            initPromise.then(() => timer.start());
+        }
+    });
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -173,23 +211,26 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.greeting === "start") {
-        timer.start();
-    } else if (message.greeting === "pause") {
-        timer.pause();
-    } else if (message.greeting === "reset") {
-        if (message.workMins) timer.workMins = message.workMins;
-        if (message.breakMins) timer.breakMins = message.breakMins;
-        if (message.longBreakMins) timer.longBreakMins = message.longBreakMins;
-        timer.reset();
-    } else if (message.greeting === "next") {
-        chrome.storage.local.get(["workMins", "breakMins", "longBreakMins"], (result) => {
-            if (result.workMins) timer.workMins = result.workMins;
-            if (result.breakMins) timer.breakMins = result.breakMins;
-            if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
-            timer.advanceMode();
-            timer.reset();
+    initPromise.then(() => {
+        if (message.greeting === "start") {
             timer.start();
-        });
-    }
+        } else if (message.greeting === "pause") {
+            timer.pause();
+        } else if (message.greeting === "reset") {
+            if (message.workMins) timer.workMins = message.workMins;
+            if (message.breakMins) timer.breakMins = message.breakMins;
+            if (message.longBreakMins) timer.longBreakMins = message.longBreakMins;
+            timer.reset();
+        } else if (message.greeting === "next") {
+            chrome.storage.local.get(["workMins", "breakMins", "longBreakMins"], (result) => {
+                if (result.workMins) timer.workMins = result.workMins;
+                if (result.breakMins) timer.breakMins = result.breakMins;
+                if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
+                timer.advanceMode();
+                timer.reset();
+                timer.start();
+            });
+        }
+    });
+    return true;
 });
