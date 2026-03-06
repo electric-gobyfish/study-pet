@@ -74,6 +74,7 @@ class Timer {
 
         this.startTime = Date.now();
         const remainingAtStart = this.timeLeft;
+        chrome.alarms.create('timerExpiry', { when: Date.now() + remainingAtStart });
         this.saveState();
 
         const tick = () => {
@@ -83,10 +84,14 @@ class Timer {
             if (this.timeLeft <= 0) {
                 this.timeLeft = 0;
                 if (this.mode === "work") this.pomodoroIteration++;
-                this.pause();
-                chrome.action.setBadgeText({text: ""})
-                this.sendNotification(this.findNextMode())
-                this.playSound()
+                clearTimeout(this.timerId);
+                this.timerId = null;
+                this.paused = true;
+                this.saveState();
+                chrome.action.setBadgeText({text: ""});
+                chrome.alarms.clear('timerExpiry');
+                this.sendNotification(this.findNextMode());
+                this.playSound();
                 return;
             }
 
@@ -125,6 +130,7 @@ class Timer {
             this.timerId = null;
             this.paused = true;
             this.saveState();
+            chrome.alarms.clear('timerExpiry');
         }
     }
 
@@ -178,6 +184,26 @@ const initPromise = new Promise(resolve => {
 
 // Track open normal window count in memory so we can pause synchronously on close.
 // Re-initialize each time the SW starts (in case it was killed and restarted).
+
+// Alarm listener wakes the SW when the timer expires while the service worker is dead.
+// The init code (via start() -> tick()) handles the actual expiry; this is a safety net.
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name !== 'timerExpiry') return;
+    initPromise.then(() => {
+        if (timer.paused) return;
+        if (timer.mode === 'work') timer.pomodoroIteration++;
+        clearTimeout(timer.timerId);
+        timer.timerId = null;
+        timer.paused = true;
+        timer.timeLeft = 0;
+        timer.saveState();
+        chrome.action.setBadgeText({text: ""});
+        chrome.alarms.clear('timerExpiry');
+        timer.sendNotification(timer.findNextMode());
+        timer.playSound();
+    });
+});
+
 let normalWindowCount = 0;
 chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
     normalWindowCount = windows.length;
