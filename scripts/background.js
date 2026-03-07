@@ -88,7 +88,7 @@ class Timer {
                 this.timerId = null;
                 this.paused = true;
                 this.saveState();
-                chrome.action.setBadgeText({text: ""});
+                setTimeout(() => chrome.action.setBadgeText({text: ""}), 1000);
                 chrome.alarms.clear('timerExpiry');
                 this.sendNotification(this.findNextMode());
                 this.playSound();
@@ -151,7 +151,7 @@ const timer = new Timer();
 // Wrap initialization in a promise so message handlers never act on a blank timer
 // (race condition: SW wakes up, messages arrive before storage.get callback fires).
 const initPromise = new Promise(resolve => {
-    chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMins"], (result) => {
+    chrome.storage.local.get(["pomodoroTimer", "workMins", "breakMins", "longBreakMins", "timerPausedByWindowClose"], (result) => {
         if (result.workMins) timer.workMins = result.workMins;
         if (result.breakMins) timer.breakMins = result.breakMins;
         if (result.longBreakMins) timer.longBreakMins = result.longBreakMins;
@@ -170,6 +170,14 @@ const initPromise = new Promise(resolve => {
             if (!timer.paused && timer.timerId === null) {
                 timer.paused = true;
                 timer.start();
+            } else if (timer.paused && timer.hasStarted && result.timerPausedByWindowClose) {
+                // Timer was paused because all windows closed; resume if a window is now open
+                chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
+                    if (windows.length > 0) {
+                        chrome.storage.local.remove('timerPausedByWindowClose');
+                        timer.start();
+                    }
+                });
             } else if (timer.paused && timer.hasStarted) {
                 timer.updateBadgeTime();
             }
@@ -181,9 +189,6 @@ const initPromise = new Promise(resolve => {
         resolve();
     });
 });
-
-// Track open normal window count in memory so we can pause synchronously on close.
-// Re-initialize each time the SW starts (in case it was killed and restarted).
 
 // Alarm listener wakes the SW when the timer expires while the service worker is dead.
 // The init code (via start() -> tick()) handles the actual expiry; this is a safety net.
@@ -197,29 +202,24 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         timer.paused = true;
         timer.timeLeft = 0;
         timer.saveState();
-        chrome.action.setBadgeText({text: ""});
+        setTimeout(() => chrome.action.setBadgeText({text: ""}), 1000);
         chrome.alarms.clear('timerExpiry');
         timer.sendNotification(timer.findNextMode());
         timer.playSound();
     });
 });
 
-let normalWindowCount = 0;
-chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
-    normalWindowCount = windows.length;
-});
-
 chrome.windows.onRemoved.addListener(() => {
-    normalWindowCount = Math.max(0, normalWindowCount - 1);
-    if (normalWindowCount === 0 && !timer.paused) {
-        timer.pause();
-        chrome.storage.local.set({ timerPausedByWindowClose: true });
-    }
+    chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
+        if (windows.length === 0 && !timer.paused) {
+            timer.pause();
+            chrome.storage.local.set({ timerPausedByWindowClose: true });
+        }
+    });
 });
 
 chrome.windows.onCreated.addListener((win) => {
     if (win.type !== 'normal') return;
-    normalWindowCount++;
     chrome.storage.local.get(['timerPausedByWindowClose'], (result) => {
         if (result.timerPausedByWindowClose) {
             chrome.storage.local.remove('timerPausedByWindowClose');
