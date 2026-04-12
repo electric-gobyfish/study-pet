@@ -112,7 +112,7 @@ class Timer {
         })
     }
 
-    async playSound() {
+    async playFinishedSound() {
       if (!(await chrome.offscreen.hasDocument())) {
         await chrome.offscreen.createDocument({
           url: "offscreen.html",
@@ -122,6 +122,18 @@ class Timer {
       }
 
       chrome.runtime.sendMessage("finishedTimerSound");
+    }
+
+    async playButtonSound() {
+      if (!(await chrome.offscreen.hasDocument())) {
+        await chrome.offscreen.createDocument({
+          url: "offscreen.html",
+          reasons: ["AUDIO_PLAYBACK"],
+          justification: "Play button sound"
+        });
+      }
+
+      chrome.runtime.sendMessage("buttonTimerSound");
     }
 
     pause() {
@@ -205,7 +217,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         setTimeout(() => chrome.action.setBadgeText({text: ""}), 1000);
         chrome.alarms.clear('timerExpiry');
         timer.sendNotification(timer.findNextMode());
-        timer.playSound();
+        timer.playFinishedSound();
     });
 });
 
@@ -239,10 +251,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     initPromise.then(() => {
         if (message.greeting === "start") {
+            timer.playButtonSound();
             timer.start();
         } else if (message.greeting === "pause") {
+            timer.playButtonSound();
             timer.pause();
         } else if (message.greeting === "reset") {
+            timer.playButtonSound();
             if (message.workMins) timer.workMins = message.workMins;
             if (message.breakMins) timer.breakMins = message.breakMins;
             if (message.longBreakMins) timer.longBreakMins = message.longBreakMins;

@@ -138,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     pausePlayButtons.addEventListener("click", async () => {
-        chrome.runtime.sendMessage({greeting: "buttonTimerSound"});
         const result = await chrome.storage.local.get(["pomodoroTimer"]);
         const timer = result.pomodoroTimer;
 
@@ -159,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resetButton.addEventListener("click", () => {
         pausePlayButtons.classList.remove("paused");
         chrome.runtime.sendMessage({greeting: "reset"});
-        chrome.runtime.sendMessage({greeting: "buttonTimerSound"});
     });
 
     nextButton.addEventListener("click", () => {
