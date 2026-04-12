@@ -72,7 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const completedPomodoros = document.getElementById("completed-pomodoros");
     const timerModeLabel = document.getElementById("timer-mode-label");
     const tomatoTimerClick = document.getElementsByClassName("tomato-timer")[0];
-    const editableTimes = document.getElementsByClassName("edit-times")[0]
+    const closeEditTimes = document.getElementById("close-edit-times");
+    const editTimes = document.getElementById("edit-times");
 
     const modeLabels = { work: "Focus", break: "Break", longBreak: "Long Break" };
 
@@ -137,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     pausePlayButtons.addEventListener("click", async () => {
+        chrome.runtime.sendMessage({greeting: "buttonTimerSound"});
         const result = await chrome.storage.local.get(["pomodoroTimer"]);
         const timer = result.pomodoroTimer;
 
@@ -157,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resetButton.addEventListener("click", () => {
         pausePlayButtons.classList.remove("paused");
         chrome.runtime.sendMessage({greeting: "reset"});
+        chrome.runtime.sendMessage({greeting: "buttonTimerSound"});
     });
 
     nextButton.addEventListener("click", () => {
@@ -185,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     tomatoTimerClick.addEventListener("click", () => {
-        editableTimes.classList.toggle("show");
+        editTimes.classList.add("show");
     });
 
     const settingsButton = document.getElementById("settings-button");
@@ -200,5 +203,9 @@ document.addEventListener("DOMContentLoaded", () => {
     closeSettings.addEventListener("click", () => {
         settings.classList.remove("show");
         closeSettings.classList.remove("show");
-    })
+    });
+
+    closeEditTimes.addEventListener("click", () => {
+        editTimes.classList.remove("show");
+    });
 });

@@ -59,7 +59,7 @@ class Timer {
                 hasStarted: this.hasStarted
             }
         });
-        if (this.hasStarted) {
+        if (this.hasStarted && this.timeLeft > 0) {
             this.updateBadgeTime();
         } else {
             chrome.action.setBadgeText({text: ""});
