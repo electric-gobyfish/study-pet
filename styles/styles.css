@@ -1,0 +1,483 @@
+/* Font */
+@font-face {
+  font-family: Pixeloid Mono;
+  src: url(../fonts/PixeloidMono-aYe1R.ttf);
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Pixeloid Sans;
+  src: url(../fonts/PixeloidSans-E40en.ttf);
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Pixeloid Bold;
+  src: url(../fonts/PixeloidSansBold-OG894.ttf);
+  font-weight: bold;
+}
+
+/* Base */
+body {
+  margin: 20px;
+  padding: 20px;
+  width: 550px;
+  height: 434.852px;
+  font-family: "Pixeloid Sans", sans-serif;
+  margin-top: 0;
+}
+
+#settings {
+  position: absolute;
+  border: 4px solid black;
+  height: 350px;
+  width: 480px;
+  display: block;
+  translate: -50% -50%;
+  top: 50%;
+  left: 50%;
+  z-index: 20;
+  background: aliceblue;
+  display: none;
+}
+
+#settings.show {
+  display: block;
+}
+
+#close-settings {
+  position: absolute;
+  z-index: 21;
+  display: none;
+  border: none;
+  background: none;
+  translate: -50% -50%;
+  top: 18%;
+  left: 85.7%;
+  height: 21px;
+}
+
+#close-settings img {
+  height: 100%;
+  object-fit: contain;
+}
+
+#close-settings.show {
+  display: block;
+}
+
+/* Typography */
+h1 {
+  margin-bottom: 20px;
+  font-family: "Pixeloid Bold", sans-serif;
+}
+
+p {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin: none;
+}
+
+/* Image */
+.left-align {
+  float: left;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.right-align {
+  float: right;
+  margin-left: 15px;
+  margin-bottom: 10px;
+}
+
+/* Align */
+.stack-rows {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  gap: 10px;
+}
+
+.stack-columns {
+  display: flex;
+  flex-direction: row; /* stack horizontally */
+  gap: 10px;
+}
+
+.centred-element {
+  width: max-content;
+  margin: auto;
+  display: block;
+}
+
+.centred-text {
+  text-align: center;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 33px;
+  padding: 0;
+  gap: 15px;
+  overflow: visible;
+  position: relative;
+}
+
+.tabs > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+  width: auto;
+}
+
+.tab {
+  all: unset;
+  cursor: pointer;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.tab:first-child {
+  padding-left: 0;
+}
+
+.tab img {
+  display: block;
+  height: 100%;
+  width: auto;
+  pointer-events: none;
+  padding: 0;
+}
+
+.tab-text {
+  font-size: 15px;
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tab-text.hover {
+  display: block;
+}
+
+.tab-text {
+  display: none;
+}
+
+.active-line {
+  position: absolute;
+  top: 100%;
+  margin-top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: none;
+}
+
+.tab.active ~ .active-line {
+  display: block;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Progress bar */
+.progress-container {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column
+}
+
+.progress-bar {
+  width: 200px;
+  height: 16px;
+  background: #111;
+  border: 3px solid #ffffff;
+  padding: 2px;
+  overflow: hidden;
+  margin: auto;
+}
+
+.progress-label {
+  font-size: 19px;
+}
+
+.xp-fill {
+  height: 100%;
+  width: 0;
+  background: #44ff44;
+  border: 2px solid #22aa22;
+  box-sizing: border-box;
+  transition: width 0.6s steps(10);
+}
+
+.xp-fill::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Placeholder */
+.level-up {
+  /*  idk :( */
+}
+
+/* Timer */
+.tomato-timer {
+  position: relative;
+  width: 200px;
+  height: auto;
+  margin-top: -10px;
+}
+
+.tomato-timer img {
+  width: 100%;
+  object-fit: contain;
+  height: auto;
+  display: block;
+}
+
+#tomato-text {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-47.5%, -17.5%);
+  font-size: 55px;
+  font-family: Pixeloid Sans, sans-serif;
+}
+
+/* Timer buttons */
+.timer-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 10px auto 0;
+  width: max-content;
+}
+
+.pause-play-stack {
+  position: relative;
+  height: 55px;
+  width: 55px;
+  flex: 0 0 55px;
+}
+
+.pause-play-stack.next {
+  display: none;
+}
+
+.pause-play-stack .timer-button {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.pause-play-stack #pause-button {
+  display: none;
+}
+
+.pause-play-stack.paused #pause-button {
+  display: grid;
+}
+
+.pause-play-stack.paused #play-button {
+  display: none;
+}
+
+#next-button {
+  display: none;
+}
+
+#next-button.next {
+  display: grid;
+}
+
+.timer-button {
+  all: unset;
+  cursor: pointer;
+  height: 55px;
+  width: max-content;
+  display: block;
+}
+
+#reset-button {
+  position: static;
+  width: 55px;
+  height: 55px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.top-bar {
+  display: inline-flex;
+  flex-direction: row;
+  padding: 0;
+  gap: 15px;
+  height: 37px;
+  justify-items: flex-end;
+  margin-left: auto;
+}
+
+.top-bar button {
+  display: flex;
+  object-fit: contain;
+  all: unset;
+  width: 37px;
+}
+
+.top-bar button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#pencil-button.hide {
+  display: none;
+}
+
+#reset-button.next {
+  display: none;
+}
+
+.timer-button img {
+  display: block;
+  height: 55px;
+  width: 55px;
+  object-fit: contain;
+  display: block;
+}
+
+#completed-pomodoros {
+  text-align: center;
+  font-size: 18px;
+}
+
+#timer-mode-label {
+  font-size: 20px;
+  margin: 4px 0 10px;
+  padding-top: 3px;
+}
+
+/* Edit times settings */
+.edit-times {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  padding: 18px;
+  padding-right: 24px;
+  padding-left: 12px;
+  padding-top: 24px;
+  translate: -50% -50%;
+  background: aliceblue;
+  border: 3px solid black;
+}
+
+.edit-times.show {
+  display: flex;
+}
+
+#close-edit-times {
+  all: unset;
+}
+
+#close-edit-times img {
+  width: 15px;
+  position: absolute;
+  transform: translateX(-50%);
+  right: -3.5px;
+  top: 5px;
+}
+
+.time-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.time-input-row label {
+  width: 70px;
+  text-align: right;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+}
+
+.time-input-row span {
+  width: 30px;
+  text-align: left;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+}
+
+.time-input-row input[type="number"] {
+  width: 44px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+  text-align: center;
+  padding: 2px 4px;
+  -moz-appearance: textfield;
+  outline: none;
+  border: none;
+}
+
+.time-input-row input[type="number"]::-webkit-inner-spin-button,
+.time-input-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+#save-times-button {
+  margin-top: 6px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: "Pixeloid Sans", sans-serif;
+  font-size: 15px;
+  padding: 4px 16px;
+  cursor: pointer;
+  border: none;
+}
+
+#save-times-button:hover {
+  background: #333;
+}

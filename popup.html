@@ -1,0 +1,170 @@
+<html lang="en-gb">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles/styles.css" />
+  <title>Study Pet</title>
+  <script src="scripts/popup.js"></script>
+</head>
+
+
+<body>
+
+<div class="header">
+  <h1>Study Pet</h1>
+  <div class="top-bar">
+    <button>
+      <img src="images/top-row-icons/profile.png" alt="Profile" draggable="false" />
+    </button>
+    <button id="settings-button">
+      <img src="images/top-row-icons/settings.png" alt="Settings" draggable="false" />
+    </button>
+  </div>
+</div>
+
+<button id="close-settings">
+  <img src="images/close-things.png" alt="Close settings" draggable="false" />
+</button>
+<div id="settings">
+  <div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div>
+    <button class="tab" id="home-button"><img src="images/tab_icons/home.png" draggable="false" alt="Home"></button>
+    <p class="tab-text centred-text" id="home-text">Home</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+  <div>
+    <button class="tab" id="pomodoro-button"><img src="images/tab_icons/pomodoro.png" draggable="false" alt="Pomodoro"></button>
+    <p class="tab-text centred-text" id="pomodoro-text">Pomodoro</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+  <div>
+    <button class="tab" id="food-button"><img src="images/tab_icons/food.png" draggable="false" alt="Food"></button>
+    <p class="tab-text centred-text" id="food-text">Food Basket</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+  <div>
+    <button class="tab" id="shop-button"><img src="images/tab_icons/shop.png" draggable="false" alt="Shop"></button>
+    <p class="tab-text centred-text" id="shop-text">Shop</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+  <div>
+    <button class="tab" id="pets-button"><img src="images/tab_icons/pets.png" draggable="false" alt="Pets"></button>
+    <p class="tab-text centred-text" id="pets-text">Pet Gallery</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+  <div>
+    <button class="tab" id="leaderboard-button"><img src="images/tab_icons/leaderboard.png" draggable="false" alt="Leaderboard"></button>
+    <p class="tab-text centred-text" id="leaderboard-text">Leaderboard</p>
+    <img src="images/tab_icons/active_tab.png" class="active-line" />
+  </div>
+</div>
+
+<!-- Home Tab -->
+<div class="tab-content" id="home-tab">
+  <div class="stack-columns">
+    <div class="image-container left-align">
+      <img src="images/home/cat_animated.gif" alt="Cat Singing" width="250" draggable="false" />
+      <p class="centred-text">Larry</p>
+    </div>
+
+    <div class="stack-rows left-align">
+      <!-- XP bar -->
+      <div class="progress-container centred-element">
+        <div class="progress-label left-align">XP</div>
+        <div class="progress-bar">
+          <div class="xp-fill" id="xpFill"></div>
+        </div>
+        <div class="progress-num centred-text" id="xpNum">0 / 100</div>
+      </div>
+
+      <!-- Health Bar -->
+      <div class="progress-container">
+        <div class="progress-label left-align">Health</div>
+        <div class="progress-bar">
+          <div class="xp-fill" id="healthFill"></div>
+        </div>
+        <div class="progress-num centred-text" id="healthNum">0 / 100</div>
+      </div>
+
+      <!-- Hunger Bar -->
+      <div class="progress-container">
+        <div class="progress-label left-align">Hunger</div>
+        <div class="progress-bar">
+          <div class="xp-fill" id="hungerFill"></div>
+        </div>
+        <div class="progress-num centred-text" id="hungerNum">0 / 100</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pomodoro Tab -->
+<div class="tab-content" id="pomodoro-tab">
+
+  <div class="tomato-timer centred-element" >
+    <img src="images/timer/tomato.png" alt="Tomato" draggable="false" />
+    <p id="tomato-text">25:00</p>
+  </div>
+
+  <div class="timer-buttons">
+    <div class="pause-play-stack">
+      <button class="timer-button" id="play-button">
+        <img src="images/timer/buttons/unpause.png" alt="Start" draggable="false" />
+      </button>
+      <button class="timer-button" id="pause-button">
+        <img src="images/timer/buttons/pause.png" alt="Pause" draggable="false" />
+      </button>
+    </div>
+
+    <button class="timer-button" id="reset-button">
+      <img src="images/timer/buttons/reset.png" alt="Reset" draggable="false" />
+    </button>
+
+    <button class="timer-button" id="next-button">
+        <img src="images/timer/buttons/next.png" alt="Next Pomodoro" draggable="false" />
+      </button>
+  </div>
+
+  <p id="timer-mode-label" class="centred-text">Focus</p>
+
+  <div class="edit-times" id="edit-times">
+    <div class="time-input-row">
+      <label for="work-mins-input">Focus</label>
+      <input type="number" id="work-mins-input" min="20" max="99" value="25" />
+      <span>min</span>
+    </div>
+    <div class="time-input-row">
+      <label for="break-mins-input">Break</label>
+      <input type="number" id="break-mins-input" min="1" max="99" value="5" />
+      <span>min</span>
+    </div>
+    <div class="time-input-row">
+      <label for="long-break-mins-input">Long Break</label>
+      <input type="number" id="long-break-mins-input" min="1" max="99" value="15" />
+      <span>min</span>
+    </div>
+    <button id="save-times-button">Save</button>
+    <button id="close-edit-times">
+      <img src="images/close-things.png"/>
+    </button>
+  </div>
+</div>
+
+<!-- Food Tab -->
+<div class="tab-content" id="food-tab"></div>
+
+<!-- Shop Tab -->
+<div class="tab-content" id="shop-tab"></div>
+
+<!-- Pets Tab -->
+<div class="tab-content" id="pets-tab"></div>
+
+<!-- Leaderboard Tab -->
+<div class="tab-content" id="leaderboard-tab"></div>
+
+</body>
+</html>
